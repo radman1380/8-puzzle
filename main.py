@@ -75,3 +75,15 @@ def get_neighbors(puzzle):
     return neighbors
 
 
+def generate_solvable_puzzles(count=100):
+    puzzles = []
+    seen = set()
+    while len(puzzles) < count:
+        puzzle = create_random_puzzle()
+        state = tuple(puzzle)
+
+        if is_solvable(puzzle) and state not in seen:
+            puzzles.append(puzzle)
+            seen.add(state)
+
+    return puzzles

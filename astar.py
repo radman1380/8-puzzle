@@ -1,6 +1,8 @@
 import random
 import heapq
+
 goal=[1,2,3,4,5,6,7,8,0]
+
 def is_goal(puzzle):
     if puzzle==goal:
         return True
@@ -84,21 +86,23 @@ class Node:
         self.total_cost = max
         
 
-def astar(start_puzzle, goal_puzzle):
+def astar(start_puzzle, heuristic_function, print_result):
     explored = []
     priority_queue = []
     backup_counter = 0 #this is only to fix a bug where the heapqueue crashes if it is sorting 2 nodes with the same total_cost
     
     #each whole board is a node, and the next move is how the whole board would look like next
     
+    if(not is_solvable(start_puzzle)):
+        print("puzzle is not solvable!")
+        return
+    
     start_node = Node()
-    start_node.previous_node = 0 #this is the starting position
     start_node.state = start_puzzle.copy()
-    start_node.total_cost = 0
     
-    current_node = start_node.copy()
+    current_node = start_node
     
-    while current_node.state != goal_puzzle and len(priority_queue) > 0:
+    while not is_goal(current_node.state):
         neighbor_states = get_neighbors(current_node.state)
     
         for new_state in neighbor_states:
@@ -106,8 +110,9 @@ def astar(start_puzzle, goal_puzzle):
             new_node.state = new_state
             new_node.previous_node = current_node
             new_node.total_cost = current_node.total_cost + 1
+            new_node.heuristic_cost = new_node.total_cost + heuristic_function(new_node.state)
             
-            heapq.heappush(priority_queue, (new_node.total_cost, backup_counter, new_node))
+            heapq.heappush(priority_queue, (new_node.heuristic_cost, backup_counter, new_node))
             backup_counter += 1
             
         found_unexplored_node = False
@@ -122,18 +127,28 @@ def astar(start_puzzle, goal_puzzle):
             if not already_explored:
                 found_unexplored_node = True
                 explored.append(next_node)
-                current_node = next_node.copy()
+                current_node = next_node
                 
     #build the optimal path through starting in the goal_puzzle-node and walking backwards through the previous-nodes
     shortest_path = []
     total_cost = current_node.total_cost
     while current_node.previous_node != 0:
         #add the previous node to the front of the list to get it in the correct order
-        shortest_path.insert(0, current_node.copy())
+        shortest_path.insert(0, current_node)
+        #shortest_path.append(current_node)
         current_node = current_node.previous_node
         
     #since while loop stops before adding the first node, I'll just add it here
-    shortest_path.insert(0, current_node.previous_node)
+    shortest_path.insert(0, current_node)
+    #shortest_path.append(current_node)
+    
+    if print_result:
+        move = 0
+        print("Heusistic function: " + str(heuristic_function))
+        print("---------------START---------------")
+        for node in shortest_path:
+            print("Move " + str(move) + ": " + str(node.state))
+            move += 1
         
     print("Total cost: " + str(total_cost))
     return shortest_path

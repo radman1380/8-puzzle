@@ -1,6 +1,7 @@
 import random
 import heapq
-
+import time
+import statistics
 goal=[0,1,2,3,4,5,6,7,8]
 
 def is_goal(puzzle):
@@ -108,12 +109,12 @@ def astar(start_puzzle, heuristic_function, print_result):
     explored = []
     priority_queue = []
     backup_counter = 0 #this is only to fix a bug where the heapqueue crashes if it is sorting 2 nodes with the same total_cost
-    
+    expanded_nodes=0
     #each whole board is a node, and the next move is how the whole board would look like next
     
     if(not is_solvable(start_puzzle)):
         print("puzzle is not solvable!")
-        return
+        return None,expanded_nodes
     
     start_node = Node()
     start_node.state = start_puzzle.copy()
@@ -121,10 +122,11 @@ def astar(start_puzzle, heuristic_function, print_result):
     current_node = start_node
     
     while not is_goal(current_node.state):
-        neighbor_states = get_neighbors(current_node.state)
+        expanded_nodes+=1
+        neighbor_states = get_neighbors(current_node.state) #get all neighbors
     
         for new_state in neighbor_states:
-            new_node = Node()
+            new_node = Node()  #creates a node for each neighbor
             new_node.state = new_state
             new_node.previous_node = current_node
             new_node.total_cost = current_node.total_cost + 1
@@ -168,11 +170,51 @@ def astar(start_puzzle, heuristic_function, print_result):
             print("Move " + str(move) + ": " + str(node.state))
             move += 1
         
-    print("Total cost: " + str(total_cost))
-    return shortest_path
+        print("Total cost: " + str(total_cost))
+    return shortest_path,expanded_nodes
 
 if __name__ == "__main__":
-    test_puzzle = [7, 2, 4, 5, 0, 6, 8, 3, 1]
-    random_puzzle = create_random_puzzle()
-    
-    shortest_path = astar(random_puzzle, manhattan, True)
+    # Generate once so both heuristics use the same 100 puzzles.
+    puzzles = generate_solvable_puzzles(count=100)
+
+    results = {
+        "Hamming": [],
+        "Manhattan": []
+    }
+
+    for heuristic_name, heuristic_function in [
+        ("Hamming", hamming),
+        ("Manhattan", manhattan)
+    ]:
+        for puzzle_number, puzzle in enumerate(puzzles, start=1):
+            start_time = time.perf_counter()
+
+            shortest_path, expanded_nodes = astar(
+                puzzle, heuristic_function, False
+            )
+
+            execution_time = time.perf_counter() - start_time
+
+            results[heuristic_name].append({
+                "puzzle_number": puzzle_number,
+                "execution_time": execution_time,
+                "expanded_nodes": expanded_nodes
+            })
+
+            # Print after timing so progress output isn't measured.
+            print(
+                f"{heuristic_name} | Puzzle {puzzle_number}/100 | "
+                f"Time: {execution_time:.6f} seconds | "
+                f"Expanded nodes: {expanded_nodes}"
+            )
+    print("\nSummary of 100 puzzles per heuristic")
+
+    for heuristic_name, measurements in results.items():
+        times = [run["execution_time"] for run in measurements]
+        expansions = [run["expanded_nodes"] for run in measurements]
+
+        print(f"\n{heuristic_name}")
+        print(f"Mean runtime: {statistics.mean(times):.6f} seconds")
+        print(f"Runtime standard deviation: {statistics.stdev(times):.6f} seconds")
+        print(f"Mean expanded nodes: {statistics.mean(expansions):.2f}")
+        print(f"Expanded nodes standard deviation: {statistics.stdev(expansions):.2f}")

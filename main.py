@@ -105,6 +105,9 @@ class Node:
         self.total_cost = 0
         self.heuristic_cost = 0
 
+#Description: Finds the shortest path between 2 nodes, in this case the least amount of moves to get from the start puzzle to the goal puzzle.
+#Input: Takes a start puzzle, a heuristic function and a true/false variabel if you want to print the shortest path list or not.
+#Output: returns the shortest path list with the most efficient moves, and the number of expanded nodes
 def astar(start_puzzle, heuristic_function, print_result):
     explored = []
     priority_queue = []

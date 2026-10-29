@@ -1,3 +1,3 @@
-# 8-puzzle
-AI Introduction
-Test test
+We implemented A* Search algorithm to solve the 8-puzzle problem using two heuristic functions : Hamming distance and Manhattan distance. We defined a fixed goal state and generated 100 unique, randomly generated solvable puzzles. These puzzles were stored in a list so that both heuristics could be evaluated on the same inputs, ensuring a fair comparison.
+
+For each search, we measured execution time and counted the expanded nodes as an indicator of memory effort. We then calculated the mean and standard deviation of both measurements for each heuristic to compare their performance.

@@ -169,6 +169,7 @@ def astar(start_puzzle, heuristic_function, print_result):
     start_node = Node()
     start_node.state = start_puzzle.copy()
     
+    explored.append(start_node)
     current_node = start_node
     
     #Loop until goal state has been reached

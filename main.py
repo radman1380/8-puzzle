@@ -230,26 +230,27 @@ def astar(start_puzzle, heuristic_function, print_result):
 if __name__ == "__main__":
     # Generate once so both heuristics use the same 100 puzzles.
     puzzles = generate_solvable_puzzles(count=100)
-
+    #store a seperate list for measurement records for each heuristic
     results = {
         "Hamming": [],
         "Manhattan": []
     }
-
+    #First run all puzzles with Hamming and then with Manhattan
+    #each pair provides display name and function name
     for heuristic_name, heuristic_function in [
         ("Hamming", hamming),
         ("Manhattan", manhattan)
-    ]:
-        for puzzle_number, puzzle in enumerate(puzzles, start=1):
+    ]:  #go through every puzzle and number it for display(start with 1)
+        for puzzle_number, puzzle in enumerate(puzzles, start=1):#gives us each time a counter and item
             start_time = time.perf_counter()
-
+            #high resolution timer value
             shortest_path, expanded_nodes = astar(
                 puzzle, heuristic_function, False
             )
 
-            execution_time = time.perf_counter() - start_time
+            execution_time = time.perf_counter() - start_time #stopping the timer
 
-            results[heuristic_name].append({
+            results[heuristic_name].append({ #saving measurements in dictionary
                 "puzzle_number": puzzle_number,
                 "execution_time": execution_time,
                 "expanded_nodes": expanded_nodes

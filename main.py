@@ -4,16 +4,31 @@ import time
 import statistics
 goal=[0,1,2,3,4,5,6,7,8]
 
+# Function: Checks whether the puzzle matches the goal state.
+# Input: puzzle — a list containing the current board.
+# Output: True if the puzzle matches the goal; otherwise False.
 def is_goal(puzzle):
     if puzzle==goal:
         return True
     else:
         return False
-    
+
+
+# Function: Creates a random board by shuffling the tiles and blank.
+# Input: None.
+# Output: A list containing tiles 1–8 and the blank (0).
+# Note: The generated puzzle is not necessarily solvable.
+
 def create_random_puzzle():
     l=[1,2,3,4,5,6,7,8,0]
     random.shuffle(l)
     return l
+
+# Function: Checks solvability by counting inversions, ignoring the blank.
+# An inversion occurs when a larger tile appears before a smaller tile.
+# For this 3x3 board and goal, an even inversion count means solvable.
+# Input: puzzle — a list containing the current board.
+# Output: True if the puzzle is solvable; otherwise False.
 
 def is_solvable(puzzle):
     inversion=0
@@ -26,6 +41,12 @@ def is_solvable(puzzle):
     else:
         return False
 
+
+# Function: Calculates the Hamming heuristic by counting misplaced tiles.
+# The blank (0) is excluded.
+# Input: puzzle — a list containing the current board.
+# Output: The number of numbered tiles outside their goal positions.
+
 def hamming(puzzle):
     misplaced=0
     for i in range(len(puzzle)):
@@ -34,11 +55,20 @@ def hamming(puzzle):
         else:
             pass
     return misplaced
+# Function: Converts a list index into a row and column on the 3x3 board.
+# Input: index — an integer from 0 to 8.
+# Output: A tuple containing (row, column), both numbered from 0.
 
 def get_position(index):
     row=index//3
     column=index%3
     return row,column
+
+# Function: Calculates the Manhattan heuristic.
+# Adds the horizontal and vertical distances between each numbered
+# tile's current position and its goal position. The blank is excluded.
+# Input: puzzle — a list containing the current board.
+# Output: The sum of the distances for all numbered tiles.
 
 def manhattan(puzzle):
     distance=0
@@ -52,38 +82,50 @@ def manhattan(puzzle):
 
     return distance
 
+
 def no_heuristic(puzzle):
     return 0
+
+# Function: Generates all boards reachable by one legal blank movement.
+# The blank can move up, down, left, or right within the board boundaries.
+# Each movement swaps the blank with the adjacent numbered tile.
+# Input: puzzle — a list containing the current board.
+# Output: A list of neighboring boards. The input board is unchanged.
 
 def get_neighbors(puzzle):
     neighbors=[]
     zero_i=puzzle.index(0)
     row,column=get_position(zero_i)
-    if row>0:
+    if row>0: #move the blanl up
         new_puzzle=puzzle.copy()
         temp=new_puzzle[zero_i]
         new_puzzle[zero_i]=new_puzzle[zero_i-3]
         new_puzzle[zero_i-3]=temp
         neighbors.append(new_puzzle)
-    if row<2:
+    if row<2: # move the blank down
         new_puzzle=puzzle.copy()
         temp=new_puzzle[zero_i]
         new_puzzle[zero_i]=new_puzzle[zero_i+3]
         new_puzzle[zero_i+3]=temp
         neighbors.append(new_puzzle)
-    if column>0:
+    if column>0: #move the blank left
         new_puzzle=puzzle.copy()
         temp=new_puzzle[zero_i]
         new_puzzle[zero_i]=new_puzzle[zero_i-1]
         new_puzzle[zero_i-1]=temp
         neighbors.append(new_puzzle)
-    if column<2:
+    if column<2: #move the blank right
         new_puzzle=puzzle.copy()
         temp=new_puzzle[zero_i]
         new_puzzle[zero_i]=new_puzzle[zero_i+1]
         new_puzzle[zero_i+1]=temp
         neighbors.append(new_puzzle)
     return neighbors
+
+# Function: Generates the requested number of distinct solvable puzzles.
+# Random boards are rejected if unsolvable or already collected.
+# Input: count — the number of puzzles to generate; default is 100.
+# Output: A list of distinct solvable puzzle boards.
 
 def generate_solvable_puzzles(count=100):
     puzzles = []
@@ -97,6 +139,14 @@ def generate_solvable_puzzles(count=100):
             seen.add(state)
 
     return puzzles
+
+# Function: Represents one board and its associated search information.
+# Input: No constructor arguments; attributes are assigned during search.
+# Output: A Node object containing:
+#   state — the current board.
+#   previous_node — the parent node, or 0 for the starting node.
+#   total_cost — moves made from the start (g).
+#   heuristic_cost — search priority, calculated as g + h.
 
 class Node:
     def __init__(self):

@@ -263,13 +263,19 @@ if __name__ == "__main__":
                 f"Expanded nodes: {expanded_nodes}"
             )
     print("\nSummary of 100 puzzles per heuristic")
-
+    #summarize the measurements for each heuristic
     for heuristic_name, measurements in results.items():
+        #extract execution times
         times = [run["execution_time"] for run in measurements]
+        #extract expanded-nodes counts
         expansions = [run["expanded_nodes"] for run in measurements]
 
         print(f"\n{heuristic_name}")
+        #print average runtime
         print(f"Mean runtime: {statistics.mean(times):.6f} seconds")
+        #print standard deviation of runtime
         print(f"Runtime standard deviation: {statistics.stdev(times):.6f} seconds")
+        #print average number of expanded nodes
         print(f"Mean expanded nodes: {statistics.mean(expansions):.2f}")
+        #print standard deviation of expanded-nodes counts
         print(f"Expanded nodes standard deviation: {statistics.stdev(expansions):.2f}")
